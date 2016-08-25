@@ -20,3 +20,11 @@ If you decide to revise your work, go ahead, starting with step (2). You do not 
 Whenever you COMMIT your work, it is saved on your own system.
 
 When you PUSH your work, it is saved to GitHub and the professor has access to it.
+
+## Assignment Files
+
+For simplicity, all of the files are being stored in the root directory of this repository. 
+
+* `Assignment-2.Rmd`, `Assignment-3.Rmd`, etc. which will hold your answers to the book exercises.
+* `01-Programming.Rmd`, `02-Programming.Rmd`, etc. which will hold your daily programming work.
+* Your end-of-term project work goes in the `Kaggle` directory.
