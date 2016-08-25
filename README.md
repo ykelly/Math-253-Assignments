@@ -1,6 +1,8 @@
 # Math 253 Assignments
 
-This repository will contain *all* your work to be handed in for Math 253.
+This repository will contain *all* your work to be handed in for Math 253. You will hand in the work by "pushing" it to the GitHub repository that has been set up for you.
+
+Make sure you are pushing to the right repository.
 
 ## Instructions
 
@@ -25,6 +27,6 @@ When you PUSH your work, it is saved to GitHub and the professor has access to i
 
 For simplicity, all of the files are being stored in the root directory of this repository. 
 
-* `Assignment-2.Rmd`, `Assignment-3.Rmd`, etc. which will hold your answers to the book exercises.
+* `Topic-2.Rmd`, `Topic-3.Rmd`, etc. which will hold your answers to the book exercises.
 * `01-Programming.Rmd`, `02-Programming.Rmd`, etc. which will hold your daily programming work.
-* Your end-of-term project work goes in the `Kaggle` directory.
+* `Project.Rmd` will hold an abstract of your end-of-term project and a link to the GitHub repository that you and your team create to hold your work.

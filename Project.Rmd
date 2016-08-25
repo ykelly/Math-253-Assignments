@@ -1,0 +1,5 @@
+# Abstract for the End-of-Term Project
+
+You'll give a description of your project here, including the names of all of your group members.
+
+Also, give a link to the public GitHub repository you and your team created to hold your work.
