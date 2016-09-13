@@ -1,5 +1,2 @@
 # Topic 1 Exercises
 
-Actually, we don't have any exercises for Topic 1. 
-
-If you are really doing the first assignment, go to `Topic-2.Rmd`.
