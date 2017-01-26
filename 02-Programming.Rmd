@@ -1,7 +1,35 @@
 # In-Class Programming Activity, Day 2
 
-Your work goes here ...
+## Katya Kelly
+## Jan. 26th, 2017
 
+## Task 1
+```{r}
+# download.file("http://www-bcf.usc.edu/~gareth/ISL/Auto.csv", destfile = "Auto.csv")
+
+auto_file_name <- "/home/local/MAC/ykelly/MATH 253/Math-253-Assignments1/Auto.csv"
+```
+
+## Task 2
+```{r}
+Auto = read.csv(auto_file_name)
+```
+
+## Task 3
+```{r}
+task3 <- summary(Auto$horsepower)
+```
+
+## Task 4
+```{r}
+library(ISLR)
+```
+
+## Task 5
+```{r}
+task5top <- Auto[1:5, 1:3]
+task5bottom <- Auto[393:397, 7:9]
+```
 
 
 ## Test statements
