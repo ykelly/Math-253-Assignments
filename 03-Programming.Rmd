@@ -2,7 +2,48 @@
 
 Your work goes here ...
 
+## Katya Kelly
+## 31 January 2017
 
+# Task 1
+```{r}
+library(ISLR)
+data(College, package = "ISLR")
+```
+
+## Task 2
+```{r}
+College$Yield = (College$Enroll)/(College$Accept)
+```
+
+## Task 3
+```{r}
+all_indices <- 1:nrow(College)
+train_indices <- sample(1:nrow(College), 200)
+test_indices <- setdiff(all_indices, train_indices)
+Train_data <- data.frame(College[train_indices, ])
+Test_data <- data.frame(College[test_indices, ])
+```
+
+## Task 4
+```{r}
+Yield_mod1 <- lm(Yield ~ Top10perc + Outstate + Expend, data = Train_data)
+```
+
+## Task 5
+```{r}
+Y_train <- Train_data$Yield
+fhat_train <- predict(Yield_mod1, newdata = Train_data)
+MSE_train <- (1/nrow(Train_data))*sum((Y_train - fhat_train)^2)
+```
+
+## Task 6
+```{r}
+Y_test <- Test_data$Yield
+fhat_test <- predict(Yield_mod1, newdata = Test_data)
+MSE_test <- (1/nrow(Test_data))*sum((Y_test - fhat_test)^2)
+MSE_train/MSE_test
+```
 
 ## Test statements
 
