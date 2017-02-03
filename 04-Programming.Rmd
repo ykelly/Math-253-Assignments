@@ -1,8 +1,41 @@
 # In-Class Programming Activity, Day 4
 
-Your work goes here ...
+## Katya Kelly
+## Date: 2 February 2017
 
 
+```{r}
+## Task 1
+plot(1, xlim = c(0, 100), ylim = c(0, 100), type = "n")
+
+## Task 2
+x1 <- c(0, 100, 100, 0)
+y1 <- c(0, 0, 100, 100)
+x2 <- c(0, 100, 100, 0, 0)
+y2 <- c(0, 0, 100, 100, 0)
+lines(x2, y2)
+
+## Task 3
+angles = seq(from= 0, to = 2*pi, 0.1)
+x3 <- cos(angles)*40 + 50
+y3 <- sin(angles)*40 + 60
+polygon(x3, y3)
+
+## Task 4
+x4 <- cos(angles)*(40*abs(sin(angles))) + 50
+y4 <- sin(angles)*(40*abs(sin(angles))) + 60
+polygon(x4, y4, col = "seashell")
+```
+
+```{r}
+## Task 5
+plot(1, type = "n", xlim = c(-20, 20), ylim = c(-15, 15), xlab = "Hello", ylab = "Bonjour", xaxt = "n", yaxt = "n")
+points(-15, 10, col = "goldenrod", cex = 5, pch = 20)
+polygon(c(-25, 25, 25, -25), c(-5, -5, -17, -17), col = "darkorchid", lwd = 0.5)
+polygon(c(-8, 10, 2.5), c(-6, -6, 12), col = "tomato3")
+polygon(c(-18, -2, -10), c(-8, -8, 8), col = "seagreen3")
+polygon(c(4, 19, 12), c(-10, -10, 10), col = "seagreen3")
+```
 
 ## Test statements
 
