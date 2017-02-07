@@ -1,2 +1,230 @@
 # Topic 1 Exercises
 
+## Katya Kelly
+## 9 February 2017
+
+## Section 2.4
+
+## Question 1
+### Part a
+For large n and a small number of predictors, a flexible model would be better. There is not much danger of overfitting with few predictors when there are many data points. 
+
+### Part b
+For small n and a large number of predictors, an inflexible model would be better. A flexible one would be prone to overfitting the model with such a small number of observations. It would also not fit another sample of data well, even if it fit the first sample perfectly.
+
+### Part c
+If the relationship between the predictors and response is highly non-linear, then a flexible model would better capture the observed trend(s) in the relationship.
+
+### Part d
+If the variance of the error terms is high, an inflexible model would be better. A flexible model would be more influenced by the extra noise in the data from the high variance.
+
+## Question 2
+### Part a
+Regression; inference; n = 500, p = 3.
+
+### Part b
+Classification; prediction; n = 20, p = 13.
+
+### Part c
+Regression; prediction; n = 52, p = 3.
+
+## Question 3
+### Part a
+![](graph.jpg)
+
+### Part b
+As flexibility increases, bias decreases and variance increases. As our f-hat gets more complicated, we have a smaller error for that particular approximation, so the bias decreases more (but will never be 0). The more flexible the model gets, the more changing the data points in our f-hat would increase variance. As flexibility increases, f better fits the observed data, which causes the training error to decrease. At first, the testing error decreases as flexibility increases; at the point when our model begins to overfit the data (when the variance also begins to increase) the testing error begins to increase, forming the U-shaped curve. The irreducible error is constant, so it is represented by a horizontal line. We always expect the testing error to be greater than the irreducible error, so the horizontal line is below the U-shaped curve.
+
+## Question 6
+A parametric approach has a set number of parameters, while the number of parameters in a non-parametric approach varies depending on information gathered from the data. The advantages of a parametric approach to regression or classification are that it makes f simpler (fewer parameters) and fewer observations are necessary to fit the model than with a non-parametric approach. However, assumptions about the data are stronger with a parametric approach, so if these assumptions are wrong, the model will be inaccurate.
+
+## Question 7
+### Part a
+```{r}
+dist1 = sqrt((0^2)+(0^2)+(3^2))
+dist1
+dist2 = sqrt((2^2)+(0^2)+(0^2))
+dist2
+dist3 = sqrt((0^2)+(1^2)+(3^2))
+dist3
+dist4 = sqrt((0^2)+(1^2)+(2^2))
+dist4
+dist5 = sqrt(((-1)^2)+(0^2)+(1^2))
+dist5
+dist6 = sqrt((1^2)+(1^2)+(1^2))
+dist6
+```
+
+### Part b
+With K=1, our prediction is Green. This is because Observation 5 has the smallest distance from our comparison point, and its classification is Green.
+
+### Part c
+With K=3, our prediction is Red. Observations 2, 5, and 6 have the three smallest distances from our comparison point. Two of those three are Red, so our prediction defaults to Red.
+
+### Part d
+If the Bayes decision boundary is highly non-linear, we would expect the best value for K to be small; as K increases, the boundary becomes more linear and thus insufficiently flexible.
+
+## Question 8
+### Part a
+```{r}
+college = read.csv("http://www-bcf.usc.edu/~gareth/ISL/College.csv")
+```
+
+### Part b
+```{r}
+rownames(college) = college[,1]
+college = college[,-1]
+#View(college)
+```
+
+### Part c(i)
+```{r}
+summary(college)
+```
+
+### Part c(ii)
+```{r}
+pairs(college[,1:10])
+```
+
+### Part c(iii)
+```{r}
+boxplot(college$Outstate, college$Private)
+```
+
+### Part c(iv)
+```{r}
+Elite = rep("No", nrow(college))
+Elite[college$Top10perc>50] = "Yes"
+Elite = as.factor(Elite)
+college = data.frame(college, Elite)
+summary(college)
+boxplot(college$Outstate, college$Elite)
+```
+
+### Part c(v)
+```{r}
+par(mfrow=c(2,2))
+hist(college$Accept)
+hist(college$Enroll)
+hist(college$Grad.Rate)
+hist(college$S.F.Ratio)
+```
+
+### Part c(vi)
+From the above boxplots, I have discovered a few interesting things. The most notable is that the distribution of graduation rates for the colleges in the data set is approximately normal (compared with the other variables), with the most frequent rates being in the 60-70% range. The histograms of the Enroll and Accept variables are extremely skewed right. Most colleges in the data set accept up to 2000 students and most enroll up to 500. The student-faculty ratio variable is slightly skewed right, with the most frequent ratio being 10 to 15 students per faculty member.
+
+## Question 9
+### Part a
+```{r}
+newAuto = read.csv("http://www-bcf.usc.edu/~gareth/ISL/Auto.csv", na.strings = "?")
+```
+The quantitative predictors are mpg, cylinders, displacement, horsepower, weight, and acceleration. The qualitative predictors are year, origin, and name.
+
+### Part b
+```{r}
+range(newAuto$mpg)
+range(newAuto$cylinders)
+range(newAuto$displacement)
+range(newAuto$horsepower, na.rm = TRUE)
+range(newAuto$weight)
+range(newAuto$acceleration)
+```
+
+### Part c
+```{r}
+mean(newAuto$mpg)
+sd(newAuto$mpg)
+
+mean(newAuto$cylinders)
+sd(newAuto$cylinders)
+
+mean(newAuto$displacement)
+sd(newAuto$displacement)
+
+mean(newAuto$horsepower, na.rm = TRUE)
+sd(newAuto$horsepower, na.rm = TRUE)
+
+mean(newAuto$weight)
+sd(newAuto$weight)
+
+mean(newAuto$acceleration)
+sd(newAuto$acceleration)
+```
+
+### Part d
+```{r}
+subAuto = newAuto[-c(10:84),]
+range(subAuto$mpg)
+mean(subAuto$mpg)
+sd(subAuto$mpg)
+
+range(subAuto$cylinders)
+mean(subAuto$cylinders)
+sd(subAuto$cylinders)
+
+range(subAuto$displacement)
+mean(subAuto$displacement)
+sd(subAuto$displacement)
+
+range(subAuto$horsepower, na.rm = TRUE)
+mean(subAuto$horsepower, na.rm = TRUE)
+sd(subAuto$horsepower, na.rm = TRUE)
+
+range(subAuto$weight)
+mean(subAuto$weight)
+sd(subAuto$weight)
+
+range(subAuto$acceleration)
+mean(subAuto$acceleration)
+sd(subAuto$acceleration)
+```
+
+### Part e
+```{r}
+pairs(newAuto)
+par(mfrow=c(2,2))
+plot(newAuto$weight, newAuto$mpg)
+plot(newAuto$cylinders, newAuto$mpg)
+plot(newAuto$year, newAuto$mpg)
+plot(newAuto$origin, newAuto$mpg)
+```
+
+From the above plots, horsepower, weight, and displacement seem to have the same decreasing effect on mpg (I've highlighted the trend with a plot of mpg vs weight). It appears that cars with four cylinders tend to get the most mpg. It looks like newer cars tend to have more mpg and that origin is a good explanatory variable for mpg, although I can't tell from this data what the places of origin are (they are labeled 1, 2, and 3). I'm not so interested in the relationships between variables such as horsepower and weight, as their relationships are predictable.
+
+### Part f
+The plots I've chosen to feature above show that weight, cylinders, year, and origin are useful predictors for mpg. Using the plots, the more information we know about each of these predictors, the better our prediction about mpg will be. Again, I did not use horsepower or displacement because of their close relationships to weight.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
