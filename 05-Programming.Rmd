@@ -1,7 +1,62 @@
 # In-Class Programming Activity, Day 5
 
-Your work goes here ...
+## Katya Kelly
+## Date: 7 February 2017
 
+## Task 1
+```{r}
+library(mosaicData)
+nbins <- 10
+```
+
+## Task 2
+```{r}
+evenly_spaced <- seq(min(Galton$height), max(Galton$height), length = nbins + 1)
+```
+
+## Task 3
+```{r}
+bin_counts <- table(cut(Galton$height, nbins))
+```
+
+## Task4
+```{r}
+xL <- evenly_spaced[1:nbins]
+xR <- evenly_spaced[1:nbins+1]
+count <- as.numeric(bin_counts)
+hist_basics <- data.frame(xL, xR, count)
+```
+
+## Task 5
+```{r}
+make_one_bar <- function(point) {
+  xLeft <- point$xL
+  xRight <- point$xR
+  height <- point$count
+  res <- data.frame(
+              x = c(xLeft,  xLeft,  xRight, xRight, NA),
+              y = c(    0, height,  height,      0, NA)
+  )
+  res
+}
+# ================
+one_to_five <- function(hist_data) {
+  bars <- NULL
+  for (k in 1:nrow(hist_data)) {
+    new_bar <- make_one_bar(hist_data[k, ])
+    bars <- rbind(bars, new_bar)
+  }
+  bars
+}
+
+My_bars <- data.frame(one_to_five(hist_basics))
+```
+
+## Task 6
+```{r}
+plot(My_bars, type = "n")
+polygon(My_bars, col = "salmon")
+```
 
 
 ## Test statements
