@@ -1,2 +1,197 @@
 # Topic 2 Exercises: Linear Regression
 
+## Katya Kelly
+## Date: 16 February 2017
+
+## Computing
+## 3.6.1
+```{r}
+library(MASS)
+library(ISLR)
+```
+
+## 3.6.2
+```{r}
+mod = lm(medv~lstat, data = Boston)
+mod
+summary(mod)
+names(mod)
+coef(mod)
+confint(mod)
+predict(mod ,data.frame(lstat =(c(5 ,10 ,15))), interval ="confidence")
+predict (mod ,data.frame(lstat =(c(5 ,10 ,15) )), interval ="prediction")
+plot(Boston$lstat, Boston$medv)
+abline(mod, lwd = 3, col = "blue", pch = 20)
+par(mfrow=c(2,2))
+plot(mod)
+plot(predict(mod), residuals(mod))
+plot(predict(mod), rstudent(mod))
+plot(hatvalues(mod))
+which.max(hatvalues(mod))
+```
+
+## 3.6.3
+```{r}
+mod2 = lm(medv ~ lstat + age, data = Boston)
+summary(mod2)
+mod3 = lm(medv ~ ., data = Boston)
+summary(mod3)
+library(car)
+vif(mod3)
+mod4 = lm(medv ~ .-age, data = Boston)
+summary(mod4)
+```
+
+## 3.6.4
+```{r}
+summary(lm(medv~lstat*age, data = Boston))
+```
+
+## 3.6.5
+```{r}
+mod5 = lm(medv ~ lstat + I(lstat^2), data = Boston)
+summary(mod5)
+anova(mod, mod5)
+par(mfrow=c(2,2))
+plot(mod5)
+mod6 = lm(medv ~ poly(lstat, 5), data = Boston)
+summary(mod6)
+```
+
+## 3.6.6
+```{r}
+names(Carseats)
+lm.fit = lm(Sales ~ .+ Income:Advertising + Price:Age, data = Carseats)
+summary(lm.fit)
+contrasts(Carseats$ShelveLoc)
+```
+
+## 3.6.7
+```{r}
+LoadLibraries = function() {
+  library(ISLR)
+  library(MASS)
+  print("The libraries have been loaded.")
+}
+LoadLibraries()
+```
+
+## 3.7.13
+### Part a
+```{r}
+set.seed(1)
+x <- rnorm(100)
+```
+
+### Part b
+```{r}
+eps <- rnorm(100, 0, sqrt(0.25))
+```
+
+### Part c
+```{r}
+y <- -1+0.5*x+eps
+length(y)
+summary(y)
+```
+The length of y is 100. The value of B0 is -1, and the value of B1 is 0.5.
+
+### Part d
+```{r}
+plot(x,y)
+```
+
+The relationship between x and y looks approximately linear with some interference from eps.
+
+### Part e
+```{r}
+model <- lm(y~x)
+summary(model)
+```
+The model has a large F-statistic and very small p-value, so the model is worthwhile. The values of B0-hat and B1-hat are quite close to B0 and B1.
+
+### Part f
+```{r}
+plot(x,y)
+abline(model, col = "blue")
+abline(-1, 0.5, col = "red")
+legend("topleft", c("Least squares", "Regression"), col = c("blue", "red"), lty = c(1, 1))
+```
+
+### Part g
+```{r}
+model2 <- lm(y ~ x + I(x^2))
+summary(model2)
+```
+There is no evidence that the quadratic term improves the model, as its p-value is higher than 0.05 (0.164). Although the R-squared increases slightly, this is bound to happen when adding any predictor to the model.
+
+### Part h
+```{r}
+set.seed(1)
+x1 <- rnorm(100)
+eps1 <- rnorm(100, 0, 0.1)
+y1 <- -1+0.5*x1+eps1
+plot(x1, y1)
+model3 <- lm(y1~x1)
+summary(model3)
+abline(model3, col = "blue")
+abline(-1, 0.5, col = "red")
+legend("topleft", c("Least squares", "Regression"), col = c("blue", "red"), lty = c(1, 1))
+```
+
+I created less noise in the model by reducing the standard deviation of the normal distribution used to create epsilon. The R-squared term is much higher (0.96 vs 0.47), and the values of B0-hat and B1-hat are even closer to B0 and B1 than in the model in parts a-f The two lines on the scatterplot are almost identical.
+
+### Part i
+```{r}
+set.seed(1)
+x2 <- rnorm(100)
+eps2 <- rnorm(100, 0, 1)
+y2 <- -1+0.5*x2+eps2
+plot(x2, y2)
+model4 <- lm(y2~x2)
+summary(model4)
+abline(model4, col = "blue")
+abline(-1, 0.5, col = "red")
+legend("topleft", c("Least squares", "Regression"), col = c("blue", "red"), lty = c(1, 1))
+```
+
+This time, I created more noise in the model by increasing the standard deviation of the normal distribution used to create epsilon. The R-squared term is much lower (0.18 vs 0.47), and the values of B0-hat and B1-hat are not as close as in the model in parts a-f. The two lines on the scatterplot are farther from each other.
+
+### Part j
+```{r}
+confint(model)
+confint(model3)
+confint(model4)
+```
+As the amount of noise in the model increases, the confidence intervals become wider. All of the intervals appear to be centered around -1 for B0-hat and 0.5 for B1-hat, which makes sense given that those are the true values of B0 and B1.
+
+## Theory
+## 1. Page 66
+In Figure 3.1, the observation errors tend to increase as n increases. Since both the errors and the variance depend on n (Var = (σ^2)/n), they must be correlated in some way.
+
+## 2. Page 77
+We can't use multiple linear regression to fit the model in this case because in order to do the regression, we need one observation for every prediction. Here, it says there are more coefficients to estimate than observations from which to estimate them.
+
+## 3.7.3
+### Part a
+The overall least squares line is y = 50 + 20GPA + 0.07IQ + 35Gender + 0.01GPA*IQ* - 10GPA*Gender*. For males, the model is y = 50 + 20GPA + 0.07IQ + 0.01GPA*IQ*. For females, the model is y = 85 + 10GPA + 0.07IQ + 0.01GPA*IQ. As long as 50 + 20GPA > 85 + 10GPA, males earn more on average than females. In other words, this is true if GPA > 3.5, so the correct answer is iii) For a fixed value of IQ and GPA, males earn more on average than females provided that the GPA is high enough.
+
+### Part b
+Using the model I derived in Part a, the salary prediction of a female with IQ = 110 and GPA = 4.0 is 85 + 10(4.0) + 0.07(110) + 0.01(4.0)(110), which = 137.1, or $137,100.
+
+### Part c
+False. The numeric value of the coefficient is not enough to ascertain the significance of an interaction effect. A better approach is to run a summary of the model and look at the p-value on B4-hat associated with the F-statistic.
+
+## 3.7.4
+### Part a
+Because the true relationship between X and Y is linear, we would probably expect the least squares line to be quite close to the true regression line. Thus, I would guess the training RSS is lower for the linear regression than for the cubic regression.
+
+### Part b
+We would get the test RSS from the test data, so we do not have enough information to tell.
+
+### Part c
+Because the true relationship between X and Y is nonlinear, we would expect the training RSS to be lower for the cubic regression than for the linear regression, since cubic regression is more flexible.
+
+### Part d
+Because we don't know how far the relationship is from linear, we do not have enough information to tell.
+
