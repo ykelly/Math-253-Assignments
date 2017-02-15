@@ -1,6 +1,106 @@
 # In-Class Programming Activity, Day 6
 
-Your work goes here ...
+## Katya Kelly
+## Date: 14 February 2017
+
+## Task 1
+```{r}
+library(mosaicData)
+
+myHistogram <- function(v, nbins, fill = "seashell") {
+  
+ make_one_bar <- function(point) {
+  xLeft <- point$xL
+  xRight <- point$xR
+  height <- point$count
+  res <- data.frame(
+              x = c(xLeft,  xLeft,  xRight, xRight, NA),
+              y = c(    0, height,  height,      0, NA)
+  )
+  res
+}
+# ================
+  one_to_five <- function(hist_data) {
+    bars <- NULL
+    for (k in 1:nrow(hist_data)) {
+    new_bar <- make_one_bar(hist_data[k, ])
+    bars <- rbind(bars, new_bar)
+  }
+  bars
+}
+
+  evenly_spaced <- seq(min(v), max(v), length = nbins + 1)
+  bin_counts <- table(cut(v, nbins))
+  
+  xL <- evenly_spaced[1:nbins]
+  xR <- evenly_spaced[1:nbins+1]
+  count <- as.numeric(bin_counts)
+  hist_basics <- data.frame(xL, xR, count)
+  
+  mean = mean(v)
+  sd = sd(v)
+  sortedV <- sort(v)
+  density = dnorm(sortedV, mean, sd)
+  areaUnderBars <- sum(count*(xR-xL))
+  
+  My_bars <- data.frame(one_to_five(hist_basics))
+  plot(My_bars, type = "n")
+  polygon(My_bars, col = fill)
+  lines(sortedV, areaUnderBars*density, col = "red")
+
+  return(bin_counts)
+}
+
+myHistogram(Galton$height, 10, fill = "seashell")
+```
+
+## Task 2
+```{r}
+##1
+v <- c(rnorm(10, mean = 100, sd = 1))
+bw <- diff(range(v))/sqrt(length(v))
+
+
+kernel <- function(x, bw) {
+  dnorm(x, mean = 0, sd = bw)
+}
+
+##2
+x_vals <- seq(min(v)-4*bw, max(v)+4*bw, length = 200)
+
+##3, 4
+Dvals <- colSums(outer(v, x_vals, FUN = function(x,y){ kernel(x-y, bw)}/length(v)
+))
+
+##5,6
+plot(x_vals, Dvals)
+```
+
+## Task 3
+```{r}
+plotdensity <- function(v, xlim = NULL) {
+  bw <- diff(range(v))/sqrt(length(v))
+  x_vals <- seq(min(v)-4*bw, max(v)+4*bw, length = 200)
+  Dvals <- colSums(outer(v, x_vals, FUN = function(x,y){ kernel(x-y, bw)}/length(v)))
+  dframe <- data.frame(x_vals, Dvals)
+  invisible(dframe)
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
