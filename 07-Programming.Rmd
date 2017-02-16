@@ -1,8 +1,54 @@
 # In-Class Programming Activity, Day 7
 
-Your work goes here ...
+## Katya Kelly
+## Date: 16 February 2017
+
+## Task 1
+```{r}
+vals <- rexp(10, rate = 1/100)
+```
+
+## Task 2
+```{r}
+test200 <- sum(log(dexp(vals, rate = 1/200)))
+```
+
+## Task 3
+```{r}
+LL_exp <- function(rate) {
+  test_rate <- sum(log(dexp(vals, rate = rate)))
+  return(test_rate)
+}
+
+LL_exp(rate = 1/200)
+```
+
+The result is very close to what I got in part 2 (the difference is due to the vals not being exactly the same).
+
+## Task 4
+```{r}
+rates <- c(seq(1/200, 1/50, length.out = 100))
+```
+
+## Task 5
+```{r}
+results <- sapply(rates, LL_exp)
+```
+
+## Task 6
+```{r}
+plot(1/rates, results)
+```
 
 
+## Task 7
+```{r}
+exp_results <- optimize(LL_exp, 
+                        lower = 1/200, upper = 1/50,
+                        maximum = TRUE)
+
+exp_results
+```
 
 ## Test statements
 
