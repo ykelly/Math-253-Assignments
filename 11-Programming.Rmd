@@ -1,6 +1,55 @@
 # In-Class Programming Activity, Day 11
 
-Your work goes here ...
+## Katya Kelly
+## Date: 2 March 2017
+
+## Matrices and their inverses
+```{r}
+Sigma <- cbind(c(1.0, -0.7), c(-0.7, 1.0))
+Sigma_inv <- solve(Sigma)
+test_inverse <- Sigma %*% Sigma_inv
+```
+
+## Matrix compositions
+```{r}
+A <- chol(Sigma)
+t(A)
+
+Sigma
+t(A) %*% A
+```
+
+## Orthogonal vectors and matrices
+```{r}
+x1 <- rnorm(10)
+x2 <- rnorm(10)
+
+x1 <- cbind(rnorm(10))
+x2 <- cbind(rnorm(10))
+
+X <- cbind(x1, x2)
+t(X) %*% X
+
+(t(X) %*% X)/nrow(X)
+
+w1 <- cbind(rnorm(10000))
+w2 <- cbind(rnorm(10000))
+
+W <- cbind(w1, w2)
+W_cov <- (t(W) %*% W)/nrow(W)
+```
+
+## Generating correlated random vectors
+```{r}
+A_inv <- chol(solve(Sigma))
+Y <- X %*% A
+
+Y <- W %*% A
+Y_cov <- (t(Y) %*% Y)/nrow(Y)
+Y_cov - Sigma
+
+plot(Y[,1], Y[,2], col = rgb(0, 0, 0, .05))
+```
 
 
 
