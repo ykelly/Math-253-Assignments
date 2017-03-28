@@ -1,7 +1,43 @@
 # In-Class Programming Activity, Day 14
 
-Your work goes here ...
+## Katya Kelly
+## 28 March 2017
 
+```{r}
+library(glmnet)
+GenCont <- read.csv("http://tiny.cc/dcf/GenCont.csv")
+```
+
+## Comparing OLS to Ridge
+```{r eval = FALSE}
+compare_ols_ridge <- function(responses, predictors, lambda=1) {
+ 
+  inds <- sample(1:nrow(GenCont),size = nrow(GenCont)/2)
+  training <- predictors[inds,]
+  testing <- predictors[-inds,]
+  
+  mod <- lm(responses[inds] ~ as.matrix(training))
+  glm_mod <- glmnet(as.matrix(training), responses[inds], alpha=0)
+  
+  preds_in <- predict(mod, newdata = training)
+  preds_out <- predict(mod, newdata = testing)
+
+     browser() # Danny couldn't figure out the problem either
+  glm_in <- predict.glmnet(glm_mod, newx = training)
+
+  glm_out <- predict.glmnet(glm_mod, newx = testing)
+  
+  ols_in <- mean((preds_in - responses[inds])^2)
+  ols_out <- mean((preds_out - responses[-inds])^2)
+  
+  glm_ols_in <- mean((glm_in - responses[inds])^2)
+  glm_ols_out <- mean((glm_out - responses[-inds])^2)
+  
+  list(lambda = lambda, ols_in = ols_in, ols_out = ols_out, glm_in = glm_in, glm_out = glm_out)
+}
+
+compare_ols_ridge(GenCont$Phenotypes, GenCont[,-1])
+```
 
 
 ## Test statements
