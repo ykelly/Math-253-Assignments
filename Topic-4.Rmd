@@ -1,2 +1,187 @@
 # Topic 4 Exercises: Classification
 
+## Katya Kelly
+## 28 March 2017
+
+##Theory
+##4.7.1
+#####(4.2): p(X) = e^(B0 + B1X)/(1 + e^(B0 + B1X))
+#####Let a = e^(B0 +B1X). Then p(X) = a/(1+a). 
+#####p(X)(1+a) = a
+#####p(X) + p(X)a = a
+#####p(X) = a - p(X)a
+#####p(X) = a(1-p(X))
+#####Finally, a = p(X)/(1-p(X)).
+#####(4.3): e^(B0 + B1X) = 1/(1-p(X))
+
+##4.7.8
+When k=1, the training error rate is 0%. Since the average error rate is 18%, the testing error rate must be 36%. This is higher than the testing error rate of 30% for the logistic regression, so we should prefer to use logistic regression in this case.
+
+##4.7.9
+###Part a
+p(X)/(1-p(X)) = 0.37, so we can express p(X) as p(X) = 0.37/(1+0.37), which equals about 0.27. On average, about 27% of people who have a 0.37 odds of defaulting on their credit card payment will actually default.
+
+###Part b
+p(X) = 0.16. p(X)/(1-p(X)) = 0.16/(1-0.16) = about 0.19. The odds that she will default is 0.19.
+
+
+##Programming
+##4.7.11
+###Part a
+```{r}
+library(ISLR)
+library(MASS)
+mpg01 <- rep(0, length(Auto$mpg))
+mpg01[Auto$mpg > median(Auto$mpg)] <- 1
+Auto <- data.frame(Auto, mpg01)
+```
+
+###Part b
+```{r}
+pairs(Auto)
+boxplot(cylinders ~ mpg01, data = Auto)
+boxplot(horsepower ~ mpg01, data = Auto)
+boxplot(weight ~ mpg01, data = Auto)
+boxplot(displacement ~ mpg01, data = Auto)
+```
+
+It appears that cylinders, horsepower, weight, and displacement are most useful in predicting mpg01.
+
+###Part c
+```{r}
+training <- (Auto$year %% 2 == 0)
+For_Training <- Auto[training, ]
+For_Testing <- Auto[!training, ]
+mpg01_training <- mpg01[training]
+mpg01_testing <- mpg01[!training]
+```
+
+###Part d
+```{r}
+LDA <- lda(mpg01 ~ cylinders + horsepower + weight + displacement, data = Auto, subset = training)
+LDA_predicted <- predict(LDA, For_Testing)
+mean(LDA_predicted$class != mpg01_testing)
+```
+
+The test error obtained is about 12.6%.
+
+###Part e
+```{r}
+QDA <- qda(mpg01 ~ cylinders + horsepower + weight + displacement, data = Auto, subset = training)
+QDA_predicted <- predict(QDA, For_Testing)
+mean(QDA_predicted$class != mpg01_testing)
+```
+
+The test error obtained is about 13.2%.
+
+###Part f
+```{r}
+GLM <- glm(mpg01 ~ cylinders + horsepower + weight + displacement, data = Auto, subset = training)
+GLM_predicted <- predict(GLM, For_Testing)
+GLM_predicted_2 <- rep(0, length(GLM_predicted))
+GLM_predicted_2[GLM_predicted > 0.5] <- 1
+mean(GLM_predicted_2 != mpg01_testing)
+```
+
+The test error obtained is about 12.6%.
+
+###Part g
+```{r}
+library(class)
+KNN_training <- cbind(Auto$cylinders, Auto$horsepower, Auto$weight, Auto$displacement)[training,]
+KNN_testing <- cbind(Auto$cylinders, Auto$horsepower, Auto$weight, Auto$displacement)[!training,]
+set.seed(1)
+KNN_predicted <- knn(KNN_training, KNN_testing, mpg01_training, k=1)
+mean(KNN_predicted != mpg01_testing)
+```
+When k=1, the test error obtained is about 15.3%.
+
+```{r}
+KNN_predicted <- knn(KNN_training, KNN_testing, mpg01_training, k=10)
+mean(KNN_predicted != mpg01_testing)
+```
+
+When k=10, the test error obtained is about 16.5%.
+
+```{r}
+KNN_predicted <- knn(KNN_training, KNN_testing, mpg01_training, k=100)
+mean(KNN_predicted != mpg01_testing)
+```
+When k=100, the test error obtained is about 14.3%.
+
+
+## 4.7.13
+```{r}
+crim01 <- rep(0, length(Boston$crim))
+crim01[Boston$crim > median(Boston$crim)] <- 1
+Boston <- data.frame(Boston, crim01)
+
+training <- 1:(length(Boston$crim)/2)
+testing <- ((length(Boston$crim)/2)+1):length(Boston$crim)
+For_Training <- Boston[training,]
+For_Testing <- Boston[testing,]
+crim01_testing <- crim01[testing]
+crim01_training <- crim01[training]
+
+GLM <- glm(crim01 ~ tax, data = Boston, family = binomial, subset = training)
+GLM_predicted <- predict(GLM, For_Testing, type = "response")
+GLM_predicted_2 <- rep(0, length(GLM_predicted))
+GLM_predicted_2[GLM_predicted > 0.5] <- 1
+mean(GLM_predicted_2 != crim01_testing)
+```
+In this case, the test error obtained is about 17.4%.
+
+```{r}
+GLM <- glm(crim01 ~ age + zn + tax + black, data = Boston, family = binomial, subset = training)
+GLM_predicted <- predict(GLM, For_Testing, type = "response")
+GLM_predicted_2 <- rep(0, length(GLM_predicted))
+GLM_predicted_2[GLM_predicted > 0.5] <- 1
+mean(GLM_predicted_2 != crim01_testing)
+```
+In this case, the test error obtained is about 14.1%. The second logistic regression performs better, but not much better considering we added 3 predictors.
+
+```{r}
+LDA <- lda(crim01 ~ tax, data = Boston, subset = training)
+LDA_predicted <- predict(LDA, For_Testing)
+mean(LDA_predicted$class != crim01_testing)
+```
+In this case, the test error obtained is about 17.4%, the same as with logistic regression for this model.
+
+```{r}
+LDA <- lda(crim01 ~ age + zn + tax + black, data = Boston, subset = training)
+LDA_predicted <- predict(LDA, For_Testing)
+mean(LDA_predicted$class != crim01_testing)
+```
+In this case, the test error obtained is about 15.0%. As with the logistic regression, the second LDA performs better, but not much better considering we added 3 predictors.
+
+```{r}
+KNN_training <- cbind(Boston$age, Boston$zn, Boston$tax, Boston$black)[training,]
+KNN_testing <- cbind(Boston$age, Boston$zn, Boston$tax, Boston$black)[testing,]
+set.seed(1)
+KNN_predicted <- knn(KNN_training, KNN_testing, crim01_training, k=1)
+mean(KNN_predicted != crim01_testing)
+```
+When k=1, the test error obtained is about 45.5%.
+
+```{r}
+KNN_predicted <- knn(KNN_training, KNN_testing, crim01_training, k=10)
+mean(KNN_predicted != crim01_testing)
+```
+When k=10, the test error obtained is about 11.9%.
+
+```{r}
+KNN_predicted <- knn(KNN_training, KNN_testing, crim01_training, k=100)
+mean(KNN_predicted != crim01_testing)
+```
+When k=100, the test error obtained is about 5.0%. It appears that k=10 is the best choice in the KNN approach.
+
+
+
+
+
+
+
+
+
+
+
