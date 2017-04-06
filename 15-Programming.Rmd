@@ -1,7 +1,76 @@
 # In-Class Programming Activity, Day 15
 
-Your work goes here ...
+## Katya Kelly
+## 4 April 2017
 
+## Overview
+```{r}
+load("mona.rda")
+X <- t(mona) - mean(mona[])
+X_rand <- matrix(rnorm(nrow(mona)*ncol(mona),mean=0,sd=1), ncol(mona), nrow(mona))
+X_corr <- X_rand %*% chol(var(X))
+```
+
+## Sparse beta
+```{r}
+beta <- rep(0, 191)
+sample_beta <- sample(1:191, 16, replace = FALSE)
+
+for (i in 1:16) {
+  rand_num <- sample(c(2, 5, -3, -4),1)
+  beta[sample_beta[i]] = rand_num
+}
+```
+
+## The output
+```{r}
+Y_pure <- X %*% beta
+Y_real <- X %*% beta + rnorm(nrow(X), mean=0, sd = sqrt(0.1*var(Y_pure)))
+```
+
+## Least squares
+```{r}
+beta_hat_pure <- coef(lm(Y_pure ~ X-1))
+plot(beta_hat_pure, beta)
+```
+
+In this case, lm has perfect performance.
+
+```{r}
+beta_hat_real <- coef(lm(Y_real ~ X-1))
+plot(beta_hat_real, beta)
+```
+
+Yes, I would say in this case beta is sparse because its most common value by far is 0.
+
+## The lasso estimator
+```{r}
+library(glmnet)
+lasso_mod <- cv.glmnet(X, Y_real, alpha=1)
+beta_lasso <- predict(lasso_mod, type = "coefficients", s = lasso_mod$lambda.min)
+```
+
+## Principle components
+```{r}
+sing_vals <- svd(X)$d
+R2_X <- cumsum(sing_vals^2)/sum(sing_vals^2)
+
+sing_vals_rand <- svd(X_rand)$d
+sing_vals_corr <- svd(X_corr)$d
+R2_rand <- cumsum(sing_vals_rand^2)/sum(sing_vals_rand^2)
+R2_corr <- cumsum(sing_vals_corr^2)/sum(sing_vals_corr^2)
+
+n99 <- which(R2_X > 0.99)[[1]]
+n99_rand <- which(R2_rand > 0.99)[[1]]
+n99_corr <- which(R2_corr > 0.99)[[1]]
+
+library(pls)
+pcr.fit <- pcr(Y_real ~ X, scale = TRUE, validation="CV")
+plot(R2(pcr.fit))
+R2(pcr.fit)
+```
+
+It looks like you need 9 components to have an R-squared of at least 0.85.
 
 
 ## Test statements
