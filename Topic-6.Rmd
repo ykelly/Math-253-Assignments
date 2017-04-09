@@ -1,2 +1,136 @@
 # Topic 6 Exercises: Selecting Model Terms
 
+## Katya Kelly
+## 9 April 2017
+
+## Theory
+## 6.8.1
+### a
+Best subset - this is the only approach for which the RSS is smallest for all predictor models.
+
+### b
+Best subset - there are more models being considered with this approach than with the others.
+
+### ci
+True - the (k+1)-variable model comes from adding a predictor to the k-variable model.
+
+### cii
+True - the k-variable model comes from removing a predictor from the (k+1)-variable model.
+
+### ciii
+False - the models obtained from two different approaches are not directly related.
+
+### civ
+False - the models obtained from two different approaches are not directly related.
+
+### cv
+False - for the best subset approach, the (k+1)-variable model does not come from simply adding a predictor to the k-variable model such as in forward stepwise selection. Rather, it comes from considering any possible model with k+1 predictors, so the original k-variable model is not necessarily nested in the (k+1)-variable model.
+
+## 6.8.2
+### a
+iii - The lasso is less flexible than least squares. Accuracy will improve when the increase in bias is less than the decrease in variance.
+
+### b
+iii - Ridge regression is less flexible than least squares. Accuracy will improve when the increase in bias is less than the decrease in variance.
+
+### c
+ii - Nonlinear methods are more flexible than least squares. Accuracy will improve when the increase in variance is less than the decrease in bias.
+
+## Programming
+## 6.8.9
+### a
+```{r}
+library(ISLR)
+set.seed(11)
+training <- sample(1:dim(College)[1], dim(College)[1]/2)
+testing <- -training
+College_training <- College[training, ]
+College_testing <- College[testing, ]
+```
+
+### b
+```{r}
+mod <- lm(Apps ~ ., data = College_training)
+prediction_mod <- predict(mod, College_testing)
+mean((prediction_mod - College_testing$Apps)^2)
+```
+
+The test error is 1538442.
+
+### c
+```{r}
+library(glmnet)
+training_matrix <- model.matrix(Apps ~ ., data = College_training)
+testing_matrix <- model.matrix(Apps ~ ., data = College_testing)
+lambda_values <- 10 ^ seq(4, -2, length=100)
+ridge_mod <- glmnet(training_matrix, College_training$Apps, alpha=0, lambda=lambda_values)
+ridge_cv <- cv.glmnet(training_matrix, College_training$Apps, alpha=0, lambda=lambda_values)
+best_lambda <- ridge_cv$lambda.min
+prediction_ridge <- predict(ridge_mod, s=best_lambda, newx=testing_matrix)
+mean((prediction_ridge - College_testing$Apps)^2)
+```
+
+The test error is 1604578.
+
+### d
+```{r}
+lasso_mod <- glmnet(training_matrix, College_training$Apps, alpha=1, lambda=lambda_values)
+lasso_cv <- cv.glmnet(training_matrix, College_training$Apps, alpha=1, lambda=lambda_values)
+l_best_lambda <- lasso_cv$lambda.min
+prediction_lasso <- predict(lasso_mod, s=l_best_lambda, newx=testing_matrix)
+mean((prediction_lasso - College_testing$Apps)^2)
+```
+
+The test error is 1633474.
+
+### e
+```{r}
+library(pls)
+pcr_mod <- pcr(Apps ~ ., data = College_training, scale = TRUE, validation = "CV")
+prediction_pcr <- predict(pcr_mod, College_testing, ncomp=15)
+mean((prediction_pcr - College_testing$Apps)^2)
+```
+
+The test error is 3061554.
+
+### f
+```{r}
+pls_mod <- plsr(Apps ~ ., data = College_training, scale = TRUE, validation = "CV")
+prediction_pls <- predict(pls_mod, College_testing, ncomp=15)
+mean((prediction_pls - College_testing$Apps)^2)
+```
+
+The test error is 1536100.
+
+### g
+Finding R-squared for each approach:
+```{r}
+testing_mean <- mean(College_testing$Apps)
+lm_R2 <- 1-mean((prediction_mod - College_testing$Apps)^2) / mean((testing_mean - College_testing$Apps)^2)
+ridge_R2 <- 1-mean((prediction_ridge - College_testing$Apps)^2) / mean((testing_mean - College_testing$Apps)^2)
+lasso_R2 <- 1-mean((prediction_lasso - College_testing$Apps)^2) / mean((testing_mean - College_testing$Apps)^2)
+pcr_R2 <- 1-mean((prediction_pcr - College_testing$Apps)^2) / mean((testing_mean - College_testing$Apps)^2)
+pls_R2 <- 1-mean((prediction_pls - College_testing$Apps)^2) / mean((testing_mean - College_testing$Apps)^2)
+
+lm_R2
+ridge_R2
+lasso_R2
+pcr_R2
+pls_R2
+```
+
+The R-squared values are as follows: 0.81 for the PCR model, and about 0.90 for the other four models. All of the models predict the number of applications quite well, although PCR could do better.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
