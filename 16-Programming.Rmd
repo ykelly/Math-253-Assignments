@@ -1,6 +1,121 @@
 # In-Class Programming Activity, Day 16
 
-Your work goes here ...
+## Katya Kelly
+## 6 April 2017
+
+## The knots
+```{r}
+my_knots <- function(x, k) {
+  qs <- (1:k)/(1+k)
+  quantile(x, probs=qs)
+}
+
+```
+
+## The basis
+```{r}
+spline_model_matrix <- function(x, knot_locations) {
+  MM <- cbind(1, x, x^2, x^3)
+  for (knot in knot_locations) {
+    new_vector <- (x-knot)^3
+    new_vector <- ifelse(new_vector >0, new_vector, 0)
+    MM <- cbind(MM, new_vector)
+  }
+  return(MM)
+}
+```
+
+## Finding the best linear combination
+```{r}
+fit_spline <- function(formula, k=2, data=parent.frame()) {
+  y <- eval(formula[[2]], envir=data)
+  x <- eval(formula[[3]], envir=data)
+  knot_locations <- my_knots(x, k)
+  MM <- spline_model_matrix(x, knot_locations)
+  mod <- lm(y ~ MM - 1)
+  res <- list(coef = coef(mod), knots = knot_locations, cov = vcov(mod), rse = sum(mod$residuals^2)/(nrow(data) - ncol(MM)))
+  class(res) <- "my_spline"
+  
+  return(res)
+}
+```
+
+## The predict function
+```{r}
+predict.my_spline <- 
+  function(mod, newx, level = 0.95,
+           intervals=c("none", "confidence", "prediction")) {
+  intervals <- match.arg(intervals)
+  MM <- spline_model_matrix(newx, mod$knots)
+  vals <- MM %*% mod$coef
+  se <- sqrt(rowSums(MM %*% mod$cov * MM))
+  rse <- mod$rse
+  if (intervals == "none") return(vals)
+  else if (intervals == "confidence") return(data.frame(vals, upper=vals+2*se, lower=vals-2*se))
+  else if (intervals == "prediction") return(data.frame(vals, upper=vals+2*sqrt(se^2 + rse^2), 
+                                                        lower=vals-2*sqrt(se^2 + rse^2)))
+  else return(NULL) # for future use
+  }
+```
+
+## How many knots?
+```{r}
+library(ISLR)
+data(Wage)
+my_spline = fit_spline(wage~age, k=4, data=Wage)
+num_seq = seq(20, 80, length=200)
+y=predict(my_spline, newx=num_seq)
+plot(num_seq, y, type="l")
+conf_intervals <- predict(my_spline, newx = num_seq, intervals = "confidence")
+lines(num_seq, conf_intervals$upper, col="blue", lty = "dashed")
+lines(num_seq, conf_intervals$lower, col="blue", lty = "dashed")
+
+prediction_intervals <- predict(my_spline, newx = num_seq, intervals = "prediction")
+
+my_spline2 <- fit_spline(wage~age, k=2, data=Wage)
+num_seq = seq(20, 80, length=200)
+y=predict(my_spline2, newx=num_seq)
+plot(num_seq, y, type="l")
+
+my_spline3 <- fit_spline(wage~age, k=10, data=Wage)
+num_seq = seq(20, 80, length=200)
+y=predict(my_spline3, newx=num_seq)
+plot(num_seq, y, type="l")
+
+my_spline4 <- fit_spline(wage~age, k=20, data=Wage)
+num_seq = seq(20, 80, length=200)
+y=predict(my_spline4, newx=num_seq)
+plot(num_seq, y, type="l")
+
+my_spline5 <- fit_spline(wage~age, k=30, data=Wage)
+num_seq = seq(20, 80, length=200)
+y=predict(my_spline5, newx=num_seq)
+plot(num_seq, y, type="l")
+
+set.seed(1)
+training <- sample(1:dim(Wage)[1], dim(Wage)[1]/2)
+testing <- -(training)
+Wage_training <- Wage[training,]
+Wage_testing <- Wage[testing,]
+
+my_spline6 <- fit_spline(wage~age, k=5, data = Wage_training)
+pred1 = predict(my_spline6, newx=Wage_testing$age)
+mean((pred1 - Wage_testing$age)^2)
+
+my_spline7 <- fit_spline(wage~age, k=10, data = Wage_training)
+pred2 = predict(my_spline7, newx=Wage_testing$age)
+mean((pred2 - Wage_testing$age)^2)
+
+my_spline8 <- fit_spline(wage~age, k=20, data = Wage_training)
+pred3 = predict(my_spline8, newx=Wage_testing$age)
+mean((pred3 - Wage_testing$age)^2)
+
+my_spline9 <- fit_spline(wage~age, k=30, data = Wage_training)
+pred4 = predict(my_spline9, newx=Wage_testing$age)
+mean((pred4 - Wage_testing$age)^2)
+```
+
+In the cases I tried, 5 knots returned the smallest mean square error.
 
 
 
