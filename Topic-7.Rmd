@@ -1,2 +1,110 @@
 # Topic 7 Exercises: Nonlinear regression
 
+## Katya Kelly
+## 10 April 2017
+
+## Theory
+## 7.9.3
+```{r}
+x = -2:2
+y = 1 + x -2*(x-1)^2*I(x >= 1)
+plot(x, y)
+```
+
+The curve is linear with equation y = 1 + x for -2 <= x < 1. It is quadratic with equation y = 1 + x -2*(x-1)^2 for x >= 1.
+
+## 7.9.4
+```{r}
+y1 = 1 + 0 + 0
+y2 = 1 + 0 + 0
+y3 = 1 + (1-0) + 0
+y4 = 1 + (1-0) + 0
+y5 = 1 + (1-1) + 0
+y = c(y1, y2, y3, y4, y5)
+plot(x, y)
+```
+
+The curve is constant with equation y = 1 for -2 <= x < 0. It is also constant for 0 <= x < 1, but with equation y = 2. For 1 <= x <= 2, the curve is linear with equation y = 3 - x.
+
+## 7.9.5
+### a
+g2-hat will be a higher order polynomial than g1-hat due to its higher order penalty term. Thus, g2-hat will have the smaller training RSS.
+
+### b
+Since g2-hat is more flexible, it may be prone to overfitting. Thus, g1-hat will probably have the smaller test RSS.
+
+### c
+g1-hat is equal to g2-hat in this case, so they will have the same training and test RSS.
+
+## Programming
+## 7.9.11
+
+```{r}
+## Part a
+set.seed(1)
+x1 <- rnorm(100)
+x2 <- rnorm(100)
+y <- 1 + 2*x1 + 3*x2
+
+## Part b
+beta1 <- 15
+
+## Part c
+a <- y-beta1*x1
+beta2 <- lm(a~x2)$coef[2]
+
+## Part d
+a <- y-beta2*x2
+beta1 <- lm(a~x1)$coef[2]
+
+## Part e
+n <- 50
+results <- matrix(NA, ncol=3, nrow=n)
+for (k in 1:n) {
+  beta1 <- 15
+  
+  a <- y-beta1*x1
+  beta2 <- lm(a~x2)$coef[2]
+  
+  a <- y-beta2*x2
+  beta1 <- lm(a~x1)$coef[2]
+  
+  beta0 <- lm(a~x1)$coef[1]
+  
+  results[k,1] <- beta0
+  results[k,2] <- beta1
+  results[k,3] <- beta2
+}
+
+## Part f
+beta <- lm(y ~ x1 + x2)$coef
+plot(results[,1], ylim = c(0,5))
+points(results[,2], col = "green")
+points(results[,3], col = "blue")
+abline(h = beta[1])
+abline(h = beta[2], col = "green")
+abline(h = beta[3], col = "blue")
+```
+
+### Part g
+The values converged right away, so only one backfit iteration was needed.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
