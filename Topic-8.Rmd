@@ -1,2 +1,95 @@
 # Topic 8 Exercises: Tree-based models
 
+## Katya Kelly
+## Date: 22 April 2017
+
+## Theory
+## 8.4.1
+![](8.4.1.jpg)
+
+## 8.4.2
+Boosting consists of using the residuals from the first split to make the next split, and so on. The method builds on itself with each tree depending on the ones that have already grown. Since in this case the depth of the tree is 1 (a stump), there can only be at most one variable involved in each term, resulting in an additive model.
+
+##8.4.3
+```{r}
+x <- seq(0, 1, length = 1000)
+class_error <- 1-pmax(x, 1-x)
+gini_index <- x*(1-x)
+cross_entropy <- -(x*log(x)+(1-x)*log(1-x))
+plot(x, class_error, type = "l", ylim = c(0, 0.7), col = "red")
+lines(x, gini_index, col = "green")
+lines(x, cross_entropy, col = "blue")
+```
+
+##8.4.4
+![](8.4.4.jpg)
+
+#8.4.5
+Classifying based on the majority vote approach returns a value of 0.6 since 6 out of the 10 probabilities are above 0.5, so the final classification is red. Classifying based on average probability returns a value of 0.45, so the final classification is green.
+
+```{r}
+## Average probability
+(0.1 + 0.15 + 0.2 + 0.2 + 0.55 + 0.6 +0.6 + 0.65 + 0.7 + 0.75)/10
+```
+
+## Programming
+## 8.4.12
+Predicting the total snowfall over one year in Grand Rapids, Michigan.
+```{r}
+data(SnowGR, package = "mosaicData")
+set.seed(1)
+library(randomForest)
+training <- sample(nrow(SnowGR), nrow(SnowGR)/2)
+SnowGR_training <- na.omit(SnowGR[training,])
+SnowGR_testing <- na.omit(SnowGR[-training,])
+```
+
+#### Boosting
+```{r}
+library(gbm)
+boost_mod <- gbm(Total ~ ., data=SnowGR_training, distribution = "gaussian", n.trees = 500)
+boost_pred <- predict(boost_mod, newdata = SnowGR_testing, n.trees = 500)
+boost_mse <- mean((SnowGR_testing$Total-boost_pred)^2)
+boost_mse
+```
+
+#### Bagging
+```{r}
+bag_mod <- randomForest(Total ~ ., data=SnowGR_training, mtry = ncol(SnowGR)-1, importance=TRUE)
+bag_pred <- predict(bag_mod, newdata = SnowGR_testing)
+bag_mse <- mean((SnowGR_testing$Total-bag_pred)^2)
+bag_mse
+```
+
+#### Random forests
+```{r}
+rf_mod <- randomForest(Total ~ ., data=SnowGR_training, mtry = ncol(SnowGR)/3, importance = TRUE)
+rf_pred <- predict(rf_mod, newdata = SnowGR_testing)
+rf_mse <- mean((SnowGR_testing$Total-rf_pred)^2)
+rf_mse
+```
+
+#### Linear model
+```{r}
+lm_mod <- lm(Total ~ ., data=SnowGR_training)
+lm_pred <- predict(lm_mod, newdata = SnowGR_testing)
+lm_mse <- mean((SnowGR_testing$Total-lm_pred)^2)
+lm_mse
+```
+
+It seems in this case that linear regression was still the most accurate by quite a bit. Other than the linear regression, bagging yielded the lowest error rate.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
