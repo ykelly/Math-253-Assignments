@@ -1,0 +1,209 @@
+---
+title: "Course Project"
+author: "Hannah, Katya, and Diana"
+date: "4/21/2017"
+output: html_document
+---
+### Starbucks data
+```{r}
+library(DataComputing)
+data("ZipDemography")
+library(readr)
+starbucks = read_csv("~/MATH 253/Math-253-Assignments1/starbucks.csv")
+# Filter starbucks data set for only US
+starbucks_us = subset(starbucks, Country =="US")
+
+# Merged ZipDemography and Starbucks US data sets
+Starbucks_zipcode = merge(ZipDemography, starbucks_us, by.x= "ZIP", by.y = "Postcode", all = TRUE)
+
+# Subset including Starbucks in the US and needed variables
+myvars = c("ZIP", "City", "State/Province", "Totalpopulation", "MedianAge", "Highschoolgraduateorhigher", "Bachelorsdegreeorhigher", "Foreignborn", "Meantraveltimetoworkinminutespopulation16yearsandolder", "Percapitaincomedollars")
+
+Starbucks_subset =  subset(Starbucks_zipcode, Percapitaincomedollars != "NA", select=myvars)
+
+# Rename columns
+names(Starbucks_subset)[names(Starbucks_subset) == 'State/Province'] = 'State'
+names(Starbucks_subset)[names(Starbucks_subset) == 'Meantraveltimetoworkinminutespopulation16yearsandolder'] = 'Worktraveltime'
+
+# Add response column Starbucks - 1 if zipcode has Starbucks, 0 if it doesn't
+Starbucks_final = Starbucks_subset
+Starbucks_final$Starbucks = ifelse(is.na(Starbucks_subset$City), 0, 1)
+
+# Reduce to only variables we need, get rid of na data
+subset_vars = c("Totalpopulation", "MedianAge", "Highschoolgraduateorhigher", "Bachelorsdegreeorhigher", "Foreignborn", "Worktraveltime", "Percapitaincomedollars", "Starbucks")
+Starbucks_final = na.omit(subset(Starbucks_final, select = subset_vars))
+
+#View(Starbucks_final)
+```
+
+### Train and Test Set
+```{r}
+set.seed(1)
+train_range = sample(nrow(Starbucks_final), nrow(Starbucks_final) / 2)
+test_range = (-train_range)
+Starbucks.train = Starbucks_final[train_range, ]
+Starbucks.test = Starbucks_final[test_range, ]
+
+# Choose 15,000 as a size for both train and test set
+train = sample(Starbucks.train, 15000)
+#View(train)
+test = sample(Starbucks.test, 15000)
+```
+
+
+### Logistic Regression
+```{r}
+logit.fit = glm(Starbucks ~ Totalpopulation + MedianAge + Highschoolgraduateorhigher + Bachelorsdegreeorhigher + Foreignborn + Worktraveltime + Percapitaincomedollars, data = train, family = "binomial")
+logit.probs = predict(logit.fit, newdata = test, type = "response")
+logit.pred = ifelse(logit.probs > 0.5, 1, 0)
+table (logit.pred, test$Starbucks)
+mean(logit.pred != test$Starbucks)
+```
+
+
+#### Logistic Regression using constant
+```{r}
+logit.fit2 = glm(Starbucks ~ 0, data = train, family = "binomial")
+logit.probs2 = predict(logit.fit2, newdata = test, type = "response")
+logit.pred2 = ifelse(logit.probs2 > 0.5, 1, 0)
+table (logit.pred2, test$Starbucks)
+mean(logit.pred2 != test$Starbucks)
+```
+
+Using logistic regression, we have a classification error of 0.1082.
+
+### Regression Tree
+```{r}
+library (tree)
+# Ask about classification tree
+tree_train = train
+tree_train$StarbucksYes = ifelse(tree_train$Starbucks == 0, "No", "Yes")
+tree_test = test
+tree_test$StarbucksYes = ifelse(tree_test$Starbucks == 0, "No", "Yes")
+#Regression Tree
+tree.starbucks = tree(Starbucks ~ Totalpopulation + MedianAge + Highschoolgraduateorhigher + Bachelorsdegreeorhigher + Foreignborn + Worktraveltime + Percapitaincomedollars, data = train, method = "class")
+summary(tree.starbucks)
+```
+
+We are able to fit a regression tree to our data as we classified a zipcode having a Starbucks using 0s and 1s.  It appears that only two of the variables have been used in constructing the tree: Bachelorsdegreeorhigher and Foreignborn.
+
+Plot of tree:
+```{r}
+plot(tree.starbucks)
+text(tree.starbucks, pretty = 0)
+```
+
+From our tree plot, we recognize that if a given zipcode has less than 2421.5 people with bachelors degree and higher and less than 254.5 foreignborn, there is a 0.01143 percent chance that there is a Starbucks.  Similarily, if a zipcode has less than 2421.5 people with bachelors degree and higher and more than 254.5 foreignborn, there is a 0.15530 percent chance that there is a Starbucks.  If there are more than 2421.5 people with bachelors degree but less than 5626.5 people, there is a 0.39020 percent chance that there is a Starbucks.  Lastly, if there are more than 5626.5 people with bachelors degree there is a 0.59940 that there is a Starbucks.  Thus, we most likely to have a Starbucks in a zipcode that has more than 5626.5 people with a bachelors degree. 
+
+```{r}
+yhat = predict(tree.starbucks, newdata = test)
+plot(yhat, test$Starbucks)
+abline(0,1)
+mean((yhat - test$Starbucks)^2)
+```
+
+Regression tree error rate = 0.07076347.
+
+### LDA
+
+```{r}
+library(MASS)
+lda.fit = lda(Starbucks ~ Totalpopulation + MedianAge + Highschoolgraduateorhigher + Bachelorsdegreeorhigher + Foreignborn + Worktraveltime + Percapitaincomedollars, data = train)
+lda.fit
+plot(lda.fit)
+```
+
+Horizontal axis is linear combination of all of our explanatory variables. This is the linear combination where the two groups (0,1) are most different.
+
+Thus, we know that 87.87 % of the training observations correspond to zipcodes that do not have Starbucks and 12.13 % of the training observations correspond to zipcodes that have Starbucks. 
+
+```{r}
+lda.pred = predict(lda.fit, test)
+lda.class = lda.pred$class
+table(lda.class, test$Starbucks)
+
+mean(lda.class != test$Starbucks)
+```
+
+With LDA, we get an error rate of 0.1091333.
+
+### QDA
+
+```{r}
+library(MASS)
+qda.fit = qda(Starbucks ~ Totalpopulation + MedianAge + Highschoolgraduateorhigher + Bachelorsdegreeorhigher + Foreignborn + Worktraveltime + Percapitaincomedollars, data = train)
+qda.fit
+```
+
+```{r}
+qda.pred = predict(qda.fit, test)
+qda.class = qda.pred$class
+table(qda.class, test$Starbucks)
+
+mean(qda.class != test$Starbucks)
+
+```
+With QDA, we get an error rate of 0.1254.
+
+### KNN 
+```{r}
+library(class)
+knn.pred1 = knn(train, test, train$Starbucks, k = 1)
+
+table(knn.pred1, test$Starbucks)
+mean(test$Starbucks != knn.pred1)
+```
+
+KNN w/ K = 1 Error Rate = 0.1283333
+
+```{r}
+knn.pred5 = knn(train, test, train$Starbucks, k = 5)
+
+table(knn.pred5, test$Starbucks)
+mean(test$Starbucks != knn.pred5)
+```
+KNN w/ K = 5 Error Rate =  0.1138
+
+```{r}
+knn.pred10 = knn(train, test, train$Starbucks, k = 10)
+
+table(knn.pred10, test$Starbucks)
+mean(test$Starbucks != knn.pred10)
+```
+KNN w/ K = 10 Error Rate =  0.1137333
+
+
+```{r}
+knn.pred100 = knn(train, test, train$Starbucks, k = 100)
+
+table(knn.pred100, test$Starbucks)
+mean(test$Starbucks != knn.pred100)
+```
+KNN w/ K = 100 Error Rate =  0.1083333
+
+### Bagging
+```{r}
+library(randomForest)
+set.seed(1)
+bag.starbucks = randomForest(Starbucks ~ Totalpopulation + MedianAge + Highschoolgraduateorhigher + Bachelorsdegreeorhigher + Foreignborn + Worktraveltime + Percapitaincomedollars, data = train, mtry = 7)
+```
+```{r}
+bag.starbucks
+yhat.bag = predict(bag.starbucks, newdata = test)
+mean((yhat.bag - test$Starbucks)^2)
+```
+The test MSE associated with the bagged regression tree is 0.06079823.
+
+
+### Random Forests
+```{r}
+set.seed(1)
+rf.starbucks = randomForest(Starbucks ~ Totalpopulation + MedianAge + Highschoolgraduateorhigher + Bachelorsdegreeorhigher + Foreignborn + Worktraveltime + Percapitaincomedollars, data = train, mtry = 2)
+yhat.rf = predict(rf.starbucks, newdata = test)
+mean((yhat.rf - test$Starbucks)^2)
+```
+The test MSE associated with the random forest is 0.05928749.
+
+
+
+
